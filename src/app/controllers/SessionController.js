@@ -5,17 +5,17 @@ class SessionController {
   async store (req, res) {
     const { email, password } = req.body
 
-    const newUser = User.findOne({ where: { email } })
+    const user = await User.findOne({ where: { email } })
 
-    if (!newUser) {
+    if (!user) {
       return res.status(401).json({ message: `User ${email} not found` })
     }
 
-    if (!(await User.checkPassword(password))) {
+    if (!(await user.chkPassword(password))) {
       return res.status(401).json({ message: 'Passwords does not match' })
     }
 
-    const { id, name } = newUser
+    const { id, name } = user
 
     res.json({
       user: {
