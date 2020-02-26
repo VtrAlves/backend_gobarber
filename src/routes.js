@@ -3,6 +3,9 @@ import multer from 'multer'
 
 import UserController from './app/controllers/UserController'
 import SessionController from './app/controllers/SessionController'
+import FileController from './app/controllers/FileController'
+import ProviderController from './app/controllers/ProviderController'
+import AppointmentController from './app/controllers/AppointmentController'
 
 import authmiddleware from './app/middlewares/auth'
 import multerConfig from './config/multer'
@@ -16,10 +19,11 @@ routes.post('/sessions', SessionController.store)
 
 routes.use(authmiddleware)
 
-routes.put('/users/', UserController.update)
+routes.get('/providers', ProviderController.index)
 
-routes.post('/files', uploads.single('file'), (req, res) => {
-  res.json({ message: req.file })
-})
+routes.post('/files', uploads.single('file'), FileController.store)
+routes.post('/appointments', AppointmentController.store)
+
+routes.put('/users/:id', UserController.update)
 
 export default routes

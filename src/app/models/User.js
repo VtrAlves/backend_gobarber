@@ -12,7 +12,8 @@ class User extends Model {
         provider: Sequelize.BOOLEAN
       },
       {
-        sequelize
+        sequelize,
+        modelName: 'users'
       }
     )
 
@@ -23,6 +24,10 @@ class User extends Model {
     })
 
     return this
+  }
+
+  static associate (models) {
+    this.belongsTo(models.files, { foreignKey: 'avatar_id', as: 'avatar' })
   }
 
   chkPassword (password) {
