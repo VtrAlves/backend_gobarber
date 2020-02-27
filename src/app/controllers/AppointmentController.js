@@ -3,8 +3,36 @@ import { startOfHour, parseISO, isBefore } from 'date-fns'
 
 import User from '../models/User'
 import Appointment from '../models/Appointment'
+import File from '../models/File'
 
-class SessionController {
+class AppointmentController {
+  async index (req, res) {
+    const { page = 1 } = req.query
+
+    const appointments = await Appointment.findAll({
+      where: { userId: req.userId, canceledAt: null },
+      limit: 20,
+      offset: (page - 1) * 20,
+      attributes: ['id', 'date'],
+      include: {
+        model: User,
+        as: 'provider',
+        attributes: ['id', 'name'],
+        include: {
+          model: File,
+          as: 'avatar',
+          attributes: ['id', 'path', 'url']
+        }
+      }
+    })
+
+    if (appointments.length === 0) {
+      return res.status(400).json({ message: 'Appointment not found or page isn\'t exists' })
+    }
+
+    return res.json({ message: 'Showing all appointments', data: appointments })
+  }
+
   async store (req, res) {
     const schema = Yup.object().shape({
       providerId: Yup.number().required(),
@@ -36,29 +64,30 @@ class SessionController {
       return res.status(400).json({ message: 'Hour already passed' })
     }
 
-    const checkAvaliability = Appointment.findOne({
+    const checkAvaliability = await Appointment.findOne({
       where: {
         date: hourProvided,
-        canceled
+        canceledAt: null,
+        providerId
       }
     })
 
     // Verifica se o Horário está ocupado.
     if (checkAvaliability) {
-
+      return res.status(400).json({ message: 'This appointment isn\'t avaliable for this request' })
     }
 
     const newAppointment = await Appointment.create({
       userId: req.userId,
-      date,
+      date: hourProvided,
       providerId
     })
 
-    res.status(200).json({
+    res.status(201).json({
       message: 'Appointment created successfuly',
       data: newAppointment
     })
   }
 }
 
-export default new SessionController()
+export default new AppointmentController()

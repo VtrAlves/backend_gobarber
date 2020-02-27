@@ -20,9 +20,10 @@ routes.post('/sessions', SessionController.store)
 routes.use(authmiddleware)
 
 routes.get('/providers', ProviderController.index)
+routes.get('/appointments', AppointmentController.index)
 
-routes.post('/files', uploads.single('file'), FileController.store)
 routes.post('/appointments', AppointmentController.store)
+routes.post('/files', uploads.single('file'), FileController.store)
 
 routes.put('/users/:id', UserController.update)
 
