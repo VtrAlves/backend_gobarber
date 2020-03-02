@@ -8,3 +8,9 @@ services:
       POSTGRES_PASSWORD: docker
     ports:
       - 5432:5432
+  
+  mongodb:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
