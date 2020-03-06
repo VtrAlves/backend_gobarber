@@ -7,6 +7,8 @@ import Appointment from '../models/Appointment'
 import File from '../models/File'
 import Notification from '../schema/Notification'
 
+import Mail from '../../lib/Mail'
+
 class AppointmentController {
   async index (req, res) {
     const { page = 1 } = req.query
@@ -81,7 +83,7 @@ class AppointmentController {
 
     // Verifica se o Horário está ocupado.
     if (checkAvaliability) {
-      return res.status(400).json({ message: 'This appointment isn\'t avaliable for this request' })
+      return res.status(400).json({ message: 'Appointment isn\'t available for this schedule' })
     }
 
     const newAppointment = await Appointment.create({
@@ -107,10 +109,14 @@ class AppointmentController {
   }
 
   async delete (req, res) {
-    const appointment = Appointment.findByPk(req.params.id)
+    const appointment = await Appointment.findByPk(req.params.id, {
+      include: [
+        { model: User, as: 'provider', attributes: ['name', 'email'] }
+      ]
+    })
 
     if (appointment.userId !== req.userId) {
-      return res.send(401).json({
+      return res.status(401).json({
         message: "You don't have permission to cancel this appointment"
       })
     }
@@ -118,7 +124,7 @@ class AppointmentController {
     const hourSub = subHours(appointment.date, 2)
 
     if (isBefore(hourSub, new Date())) {
-      return res.send(401).json({
+      return res.status(400).json({
         message: 'You can only cancel appointments 2 hours in advance'
       })
     }
@@ -127,7 +133,13 @@ class AppointmentController {
 
     await appointment.save()
 
-    return res.status(401).json({
+    await Mail.sendMail({
+      to: `${appointment.provider.name} <${appointment.provider.email}>`,
+      subject: 'Agendamento Cancelado',
+      text: 'Você tem um novo cancelamento'
+    })
+
+    return res.status(200).json({
       message: `Appointment ${appointment.id} canceled successfuly`,
       data: appointment
     })

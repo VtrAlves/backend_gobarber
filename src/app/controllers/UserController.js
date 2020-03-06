@@ -1,6 +1,7 @@
 import * as Yup from 'yup'
 
 import User from '../models/User'
+import File from '../models/File'
 
 class UserController {
   async store (req, res) {
@@ -20,7 +21,12 @@ class UserController {
 
     const emailExists = await User.findOne({ where: { email: req.body.email } })
     if (emailExists) {
-      res.status(400).json({ message: 'User already exists.' })
+      return res.status(400).json({ message: 'User already exists.' })
+    }
+
+    const avatarExists = await File.findByPk(req.body.avatar_id)
+    if (!avatarExists) {
+      return res.status(400).json({ message: 'Avatar doesn\'t exists.' })
     }
 
     const { id, name, email, provider } = await User.create(req.body)

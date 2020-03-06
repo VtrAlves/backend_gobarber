@@ -12,14 +12,21 @@ class NotificationController {
     }
 
     const notifications = await Notification.find({
-      user: req.userId
+      user: req.userId,
+      read: false
     }).sort({ createdAt: 'desc' }).limit(20)
+
+    if (notifications.length === 0) {
+      return res.status(200).json({ message: 'There is no notifications for today' })
+    }
 
     return res.json({ message: 'Showing all notifications', data: notifications })
   }
 
   async update (req, res) {
-    const notification = await Notification.findByIdAndUpdate(req.params.id, { read: true }, { new: true })
+    const { id } = req.params
+
+    const notification = await Notification.findByIdAndUpdate(id, { read: true }, { new: true })
 
     return res.json({
       message: 'Notification readed successfuly',

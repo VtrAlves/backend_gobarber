@@ -30,7 +30,7 @@ routes.post('/appointments', AppointmentController.store)
 routes.post('/files', uploads.single('file'), FileController.store)
 
 routes.put('/users/:id', UserController.update)
-routes.put('/notifications/:id', NotificationController.index)
+routes.put('/notifications/:id', NotificationController.update)
 
 routes.delete('/appointments/:id', AppointmentController.delete)
 
