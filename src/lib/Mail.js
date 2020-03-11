@@ -26,7 +26,7 @@ class Mail {
         layoutsDir: resolve(viewPath, 'layouts'),
         partialsDir: resolve(viewPath, 'partials'),
         defaultLayout: 'default',
-        extName: '.hbs'
+        extname: '.hbs'
       }),
       viewPath,
       extName: '.hbs'
