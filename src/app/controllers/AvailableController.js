@@ -1,4 +1,4 @@
-import { startOfDay, endOfDay, setHours, setMinutes, setSeconds, format } from 'date-fns'
+import { startOfDay, endOfDay, setHours, setMinutes, setSeconds, format, isAfter } from 'date-fns'
 import { Op } from 'sequelize'
 
 import Appointment from '../models/Appointment'
@@ -36,7 +36,8 @@ class AvailableController {
       '17:00',
       '18:00',
       '19:00',
-      '20:00'
+      '20:00',
+      '21:00'
     ]
 
     const available = schedule.map(time => {
@@ -45,11 +46,14 @@ class AvailableController {
 
       return {
         time,
-        value: format(value, "yyyy-MM-dd'T'hh:mm:ssxxx")
+        value: format(value, "yyyy-MM-dd'T'HH:mm:ssxxx"),
+        available: isAfter(value, new Date()) && !appointments.find(a =>
+          format(a.date, 'HH:mm') === time
+        )
       }
     })
 
-    res.json({ message: 'In Development', data: appointments })
+    res.json({ message: 'In Development', data: available })
   }
 }
 

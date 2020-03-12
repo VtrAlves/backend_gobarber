@@ -1,4 +1,5 @@
 import Sequelize, { Model } from 'sequelize'
+import { isBefore, subHours } from 'date-fns'
 import bcrypt from 'bcryptjs'
 
 class Appointment extends Model {
@@ -6,7 +7,19 @@ class Appointment extends Model {
     super.init(
       {
         date: Sequelize.DATE,
-        canceledAt: Sequelize.DATE
+        canceledAt: Sequelize.DATE,
+        past: {
+          type: Sequelize.VIRTUAL,
+          get () {
+            return isBefore(this.date, new Date())
+          }
+        },
+        cancelable: {
+          type: Sequelize.VIRTUAL,
+          get () {
+            return isBefore(new Date(), subHours(this.date, 2))
+          }
+        }
       },
       {
         sequelize,
